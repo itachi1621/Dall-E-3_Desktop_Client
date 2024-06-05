@@ -1,0 +1,5 @@
+OPENAI_KEY = ""
+OUTPUT_PATH = "output/"
+QUALITY = "standard"
+MAX_IMAGES = 2
+USE_REVISED = False
