@@ -20,7 +20,7 @@ Required Python packages: aiohttp, python-dotenv, Pillow, argparse, asyncio
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/image-generation-openai.git
+git clone https://github.com/itachi1621/Dall-E-3_Desktop_Client.git
 cd DAll-E-3-Desktop_Client
 ```
 
