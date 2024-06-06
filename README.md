@@ -13,7 +13,8 @@ This project allows you to generate images using OpenAI's DALL-E model via a com
 ## Prerequisites
 - Python 3.10+
 - OpenAI API Key
-Required Python packages: aiohttp, python-dotenv, Pillow
+
+Required Python packages: aiohttp, python-dotenv, Pillow, argparse, asyncio
 
 ## Installation
 1. Clone the repository:
@@ -45,7 +46,7 @@ python Dall-E-3_Desktop_Client.py
 ```
 ### Command-Line Arguments
 You can also provide the prompt, number of images, and image size as command-line arguments:
-**Note Only *prompt* is required other arguments are optional 
+**Note Only *prompt* is required other arguments are optional
 
 ```bash
 python Dall-E-3_Desktop_Client.py --prompt "A futuristic cityscape" --number_of_images 3 --pic_size "l"
@@ -61,7 +62,7 @@ If no command-line arguments are provided, the script will run in interactive mo
 
 #### Environment Variables
 - OPENAI_KEY: Your OpenAI API key.
-- MAX_IMAGES: Maximum number of images to generate per job. (May also be dependent on your OpenAI Tier Limits)
+- MAX_IMAGES: Maximum possible number of images to generate per job. e.g only allow the user to generate up to 2 images (May also be dependent on your OpenAI Tier Limits)
 - QUALITY: Image quality setting. use `standard` or `HD`
 - USE_REVISED: Use the revised prompt returned by the API for subsequent image generation (True/False). By Default Dalle will generate a new prompt per image and will give varrying results.
 

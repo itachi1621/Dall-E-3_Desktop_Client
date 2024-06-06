@@ -32,6 +32,11 @@ async def create_images(prompt: str, number_of_images: int, pic_size: str, job_n
             print("Number of images should be greater than 0")
             return
 
+        if number_of_images > MAX_IMAGES:
+            print("Number of images cannot be greater than "+ str(MAX_IMAGES))
+            return
+
+
         pic_size = pic_size.strip().lower()
 
         if pic_size in ('s', 'standard'):
@@ -107,10 +112,13 @@ def run_in_thread(loop, prompt, number_of_images, pic_size, job_number):
 def get_number_of_images():
     while True:
         try:
-            numOfImgs = input("Enter number of images to generate leave blank for default of 1: ")
+            numOfImgs = input("\n\nEnter number of images to generate leave blank for default of 1: ")
             if numOfImgs == "":
                 return 1
             if numOfImgs.isdigit():
+                if(int(numOfImgs) > int(MAX_IMAGES)):
+                    print("Number of images cannot be greater than "+ str(MAX_IMAGES))
+                    continue
                 return int(numOfImgs)
             print("Invalid input. Please enter a number.")
         except Exception as e:
@@ -120,7 +128,7 @@ def get_number_of_images():
 def get_pic_size():
     while True:
         try:
-            pic_size = input("Enter the size of the images (s for standard, l for landscape, p for portrait) leave blank for standard: ").strip().lower()
+            pic_size = input("\nEnter the size of the images (s for standard, l for landscape, p for portrait) leave blank for standard: ").strip().lower()
             if pic_size in ('', 's', 'standard', 'l', '16:9', 'p', 'portrait', '9:16'):
                 return pic_size if pic_size else 's'
             print("Invalid input. Please enter a valid size.")
@@ -131,7 +139,7 @@ def get_pic_size():
 def get_prompt():
     while True:
         try:
-            prompt = input("Enter the prompt for the image generation (or type /q, quit, exit to stop): ").strip()
+            prompt = input("\nEnter the prompt for the image generation (or type /q, quit, exit to stop): ").strip()
             if prompt:
                 if prompt.lower() in ['/q', 'quit', 'exit', 'q']:
                     print("Exiting...")
