@@ -74,6 +74,16 @@ Ensure you have a valid OpenAI API key set in your .env file.
 Check that the required Python packages are installed.
 Verify that the environment variables are correctly set.
 
+## Sample Images
+
+<p align="center">
+  <img src="https://github.com/itachi1621/Dall-E-3_Desktop_Client/assets/62318474/28f0a052-4c2c-4217-8a7d-7ad2d015583b" width="400">
+    <img src="https://github.com/itachi1621/Dall-E-3_Desktop_Client/assets/62318474/a55cc793-da84-43c3-b409-be11f6089e18" width="400">
+  <img src="https://github.com/itachi1621/Dall-E-3_Desktop_Client/assets/62318474/cb3d27b7-7962-491f-8fda-20fe1f691002" width="300">
+    <img src="https://github.com/itachi1621/Dall-E-3_Desktop_Client/assets/62318474/a4ed6a65-8f01-436e-b588-1e966ccd9725" width="300">
+</p>
+
+
 ## Contributing
 Feel free to open issues or submit pull requests if you have suggestions or improvements.
 
