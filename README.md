@@ -1,7 +1,7 @@
 # Dall-E-3_Desktop_Client
 ## Image Generation with OpenAI Dall-e-3 API
 
-This project allows you to generate images using OpenAI's DALL-E model via a command-line interface. The script supports asynchronous image creation, handles user inputs, and saves images with metadata.
+This script allows you to generate images using OpenAI's DALL-E 3 model via a command-line interface. The script supports asynchronous image creation, handles user inputs, and saves images with metadata.
 
 ## Features
 - Asynchronous image generation using aiohttp and asyncio.
@@ -44,6 +44,9 @@ Run the script with the following command:
 ```bash
 python Dall-E-3_Desktop_Client.py
 ```
+## Output
+Images are stored in the output folder of the directory
+
 ### Command-Line Arguments
 You can also provide the prompt, number of images, and image size as command-line arguments:
 **Note Only *prompt* is required other arguments are optional
