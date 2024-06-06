@@ -8,6 +8,8 @@ import asyncio
 import threading
 from PIL import Image, PngImagePlugin
 import argparse
+import signal
+import sys
 
 dotenv.load_dotenv()
 
@@ -18,6 +20,7 @@ JOB = 1
 USE_REVISED = os.getenv('USE_REVISED', 'False').lower() in ('true', '1', 't')
 
 threads = []
+stop_event = threading.Event()
 
 
 async def create_images(prompt: str, number_of_images: int, pic_size: str, job_number: int):
@@ -29,7 +32,6 @@ async def create_images(prompt: str, number_of_images: int, pic_size: str, job_n
             print("Number of images should be greater than 0")
             return
 
-        useRevised = USE_REVISED
         pic_size = pic_size.strip().lower()
 
         if pic_size in ('s', 'standard'):
@@ -41,13 +43,12 @@ async def create_images(prompt: str, number_of_images: int, pic_size: str, job_n
         else:
             pic_size = "1024x1024"
 
-        #print("Submitted Job " + str(job_number))
 
         async with aiohttp.ClientSession() as session:
             if 1 <= number_of_images <= MAX_IMAGES:
                 image_data_list = []
 
-                for i in range(number_of_images):
+                for _ in range(number_of_images):
                     async with session.post('https://api.openai.com/v1/images/generations', headers={'Authorization': 'Bearer ' + OPENAI_KEY},
                                             json={
                                                 'model': "dall-e-3",
@@ -57,7 +58,7 @@ async def create_images(prompt: str, number_of_images: int, pic_size: str, job_n
                                                 'quality': QUALITY,
                                             }) as resp:
                         if resp.status != 200:
-                            if i == 0:
+                            if not image_data_list:
                                 print("Unable to get Image")
                             continue
 
@@ -66,7 +67,7 @@ async def create_images(prompt: str, number_of_images: int, pic_size: str, job_n
                         image_url = response['data'][0]['url']
                         image_data_list.append((prompt, revised_prompt, image_url))
 
-                        if useRevised:
+                        if USE_REVISED:
                             prompt = revised_prompt
 
                 files = []
@@ -77,7 +78,7 @@ async def create_images(prompt: str, number_of_images: int, pic_size: str, job_n
                             continue
                         data = io.BytesIO(await resp.read())
                         random_id = str(random.randrange(1000, 4000))
-                        file_name = str(int(time.time())) + random_id + "_" + "D3D" + ".png"
+                        file_name = f"{int(time.time())}{random_id}_D3D.png"
 
                         # Load the image and add metadata
                         image = Image.open(data)
@@ -91,14 +92,11 @@ async def create_images(prompt: str, number_of_images: int, pic_size: str, job_n
 
                         files.append(file_name)
 
-                print("JOB " + str(job_number) + " Completed \n --->")
+                print(f"\nJOB {job_number} Completed\n\nContinue Input--->")
             else:
                 print('Invalid Number of Images Configured in the config file')
-                return
-
     except Exception as e:
-        print(e)
-        return
+        print(f"Error in creating images: {e}")
 
 
 def run_in_thread(loop, prompt, number_of_images, pic_size, job_number):
@@ -106,7 +104,55 @@ def run_in_thread(loop, prompt, number_of_images, pic_size, job_number):
     loop.run_until_complete(create_images(prompt, number_of_images, pic_size, job_number))
 
 
+def get_number_of_images():
+    while True:
+        try:
+            numOfImgs = input("Enter number of images to generate leave blank for default of 1: ")
+            if numOfImgs == "":
+                return 1
+            if numOfImgs.isdigit():
+                return int(numOfImgs)
+            print("Invalid input. Please enter a number.")
+        except Exception as e:
+            print(f"Error getting number of images: {e}")
+
+
+def get_pic_size():
+    while True:
+        try:
+            pic_size = input("Enter the size of the images (s for standard, l for landscape, p for portrait) leave blank for standard: ").strip().lower()
+            if pic_size in ('', 's', 'standard', 'l', '16:9', 'p', 'portrait', '9:16'):
+                return pic_size if pic_size else 's'
+            print("Invalid input. Please enter a valid size.")
+        except Exception as e:
+            print(f"Error getting picture size: {e}")
+
+
+def get_prompt():
+    while True:
+        try:
+            prompt = input("Enter the prompt for the image generation (or type /q, quit, exit to stop): ").strip()
+            if prompt:
+                if prompt.lower() in ['/q', 'quit', 'exit', 'q']:
+                    print("Exiting...")
+                    return None
+                return prompt
+            print("Prompt cannot be empty. Please enter a prompt.")
+        except Exception as e:
+            print(f"Error getting prompt: {e}")
+
+
+def signal_handler(sig, frame):
+    print('Exiting...')
+    stop_event.set()
+    for thread in threads:
+        thread.join()
+    sys.exit(0)
+
+
 def main():
+    signal.signal(signal.SIGINT, signal_handler)
+
     parser = argparse.ArgumentParser(description='Generate images using OpenAI API.')
     parser.add_argument('--prompt', type=str, help='The prompt for the image generation')
     parser.add_argument('--number_of_images', type=int, default=1, help='Number of images to generate')
@@ -120,22 +166,22 @@ def main():
         thread = threading.Thread(target=run_in_thread, args=(loop, args.prompt, args.number_of_images, args.pic_size, JOB))
         thread.start()
         threads.append(thread)
-        print("Job " + str(JOB) + " is now running.")
+        print(f"Job {JOB} is now running in the background.")
         JOB += 1
     else:
-        while True:
-            prompt = input("Enter the prompt for the image generation (or type /q, quit, exit to stop): ")
-            if prompt.lower() in ['/q', 'quit', 'exit']:
-                print("Exiting...")
+        while not stop_event.is_set():
+            prompt = get_prompt()
+            if not prompt:
                 break
-            number_of_images = int(input("Enter the number of images to generate: "))
-            pic_size = input("Enter the size of the images (s for standard, l for landscape, p for portrait): ")
+
+            number_of_images = get_number_of_images()
+            pic_size = get_pic_size()
 
             loop = asyncio.new_event_loop()
             thread = threading.Thread(target=run_in_thread, args=(loop, prompt, number_of_images, pic_size, JOB))
             thread.start()
             threads.append(thread)
-            print("Job " + str(JOB) + " is now running.")
+            print(f"Job {JOB} is now running in the background.")
             JOB += 1
 
     # Wait for all threads to complete before exiting
