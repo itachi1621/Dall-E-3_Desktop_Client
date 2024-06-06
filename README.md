@@ -74,6 +74,10 @@ Ensure you have a valid OpenAI API key set in your .env file.
 Check that the required Python packages are installed.
 Verify that the environment variables are correctly set.
 
+## OpenAI Dall E 3 Pricing
+![Screenshot from 2024-06-06 14-25-22](https://github.com/itachi1621/Dall-E-3_Desktop_Client/assets/62318474/4610c819-ed3d-4c64-a44a-9ac0b4391727)
+
+
 ## Sample Images
 
 <p align="center">
